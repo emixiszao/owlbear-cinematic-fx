@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owlbear Cinematic FX</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11131b;
+      --panel: #191d29;
+      --panel-2: #222839;
+      --text: #f2f4fa;
+      --muted: #a6aec2;
+      --line: #30384b;
+      --accent: #9276ff;
+      --accent-2: #6650c8;
+      --green: #78ddb3;
+      --orange: #f2b36c;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0; padding: 14px; background: var(--bg); color: var(--text);
+      font: 13px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .header { display:flex; gap:10px; align-items:center; margin-bottom: 12px; }
+    .logo {
+      flex:0 0 42px; height:42px; display:grid; place-items:center; border-radius:12px;
+      background: linear-gradient(145deg,#977cff,#4e3a9e); box-shadow:0 5px 20px #7a5cff30;
+    }
+    .logo svg { width:26px; height:26px; }
+    h1 { margin:0; font-size:16px; line-height:1.2; letter-spacing:.1px; }
+    .subtitle { margin-top:4px; color:var(--muted); font-size:11px; }
+    .status {
+      padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:#161a25;
+      color:var(--muted); font-size:11px; margin-bottom:12px;
+    }
+    .status.good { border-color:#285845; color:#a4efd0; }
+    .status.warn { border-color:#6b4a25; color:#ffd09a; }
+    .section { margin-top:14px; }
+    .section-title {
+      display:flex; align-items:center; justify-content:space-between; margin:0 0 7px;
+      color:#dce1f1; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.09em;
+    }
+    .section-title span { color:var(--muted); font-size:10px; font-weight:500; text-transform:none; letter-spacing:0; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    button {
+      width:100%; min-width:0; padding:10px 9px; border:1px solid var(--line); border-radius:9px;
+      background:var(--panel); color:var(--text); cursor:pointer; text-align:left;
+      font:600 12px/1.25 system-ui, sans-serif; transition:background .12s,border-color .12s,transform .12s;
+    }
+    button:hover { background:var(--panel-2); border-color:#59637c; }
+    button:active { transform:scale(.99); }
+    button.active { background:#2b2545; border-color:var(--accent); box-shadow:inset 0 0 0 1px #9276ff22; }
+    button .symbol { display:inline-grid; width:23px; height:23px; place-items:center; margin-right:6px; border-radius:7px; background:#30364a; font-size:14px; vertical-align:middle; }
+    button.active .symbol { background:#4b3b82; }
+    button .label { display:inline-block; vertical-align:middle; max-width:calc(100% - 32px); }
+    button .hint { display:block; padding-left:29px; padding-top:4px; color:var(--muted); font-size:10px; font-weight:400; }
+    .wide { grid-column:1 / -1; }
+    .tone-grid button { min-height:54px; }
+    .tone-grid .cold { border-left:3px solid #79b8ff; }
+    .tone-grid .warm { border-left:3px solid #f2b36c; }
+    .tone-grid .red { border-left:3px solid #ed5d70; }
+    .tone-grid .mono { border-left:3px solid #b6bbc8; }
+    .note { margin:7px 1px 0; color:var(--muted); font-size:10px; }
+    .light-card { padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+    .light-card p { margin:0 0 9px; color:var(--muted); font-size:11px; }
+    .light-card button { text-align:center; background:#27213d; border-color:#4e417b; }
+    .light-card button + button { margin-top:7px; }
+    .footer { margin-top:14px; padding-top:10px; border-top:1px solid var(--line); color:#7f899f; font-size:10px; }
+    #clearFx { background:#27202a; border-color:#68404d; color:#ffc5d0; text-align:center; }
+    #clearLights { background:#1c2730; border-color:#34576a; color:#b9e5f7; text-align:center; }
+    button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.5 14.6 8l6 .8-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.3-4.2 6-.8z"/>
+        <circle cx="12" cy="11" r="2.1"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Owlbear Cinematic FX</h1>
+      <div class="subtitle">Atmosfera, cor e terror cinematográfico</div>
+    </div>
+  </header>
+
+  <div id="status" class="status">Conectando ao Owlbear Rodeo…</div>
+
+  <section class="section">
+    <div class="section-title">Pós-processamento <span>Filtros de tela</span></div>
+    <div class="grid">
+      <button data-key="vignette"><span class="symbol">◉</span><span class="label">Vinheta</span><span class="hint">Bordas mais escuras</span></button>
+      <button data-key="grain"><span class="symbol">⋯</span><span class="label">Grão de filme</span><span class="hint">Textura analógica animada</span></button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Color grading <span>Escolha um tom</span></div>
+    <div class="grid tone-grid">
+      <button class="cold" data-key="cold"><span class="symbol">❄</span><span class="label">Cinema frio</span></button>
+      <button class="warm" data-key="warm"><span class="symbol">☀</span><span class="label">Âmbar</span></button>
+      <button class="red" data-key="red"><span class="symbol">✦</span><span class="label">Paranormal</span></button>
+      <button class="mono" data-key="mono"><span class="symbol">◐</span><span class="label">Preto e branco</span></button>
+    </div>
+    <p class="note">Só um tom pode ficar ativo por vez. Clique novamente no tom ativo para desligá-lo.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Atmosfera animada <span>Pode combinar</span></div>
+    <div class="grid">
+      <button data-key="fog"><span class="symbol">〰</span><span class="label">Névoa</span><span class="hint">Bruma suave em movimento</span></button>
+      <button data-key="rain"><span class="symbol">⟋</span><span class="label">Chuva</span><span class="hint">Gotas diagonais estilizadas</span></button>
+      <button data-key="dust"><span class="symbol">✧</span><span class="label">Poeira / partículas</span><span class="hint">Partículas flutuantes</span></button>
+      <button data-key="rays"><span class="symbol">☼</span><span class="label">Feixes de luz</span><span class="hint">Simulação 2D estilizada</span></button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Ferramentas de mestre</div>
+    <div class="grid">
+      <button class="wide" id="flash"><span class="symbol">⚡</span><span class="label">Surto paranormal</span><span class="hint">Flash vermelho breve com distorção de atmosfera</span></button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Luz dinâmica <span>Dynamic Fog</span></div>
+    <div class="light-card">
+      <p>Selecione um token na mesa e crie uma lanterna em cone presa a ele. A luz depende do Dynamic Fog e das paredes configuradas na cena.</p>
+      <button id="lantern">Criar lanterna no token selecionado</button>
+      <button id="clearLights">Remover lanternas desta extensão</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <button id="clearFx">Limpar filtros e atmosferas</button>
+    <div class="note">Os filtros de shader são locais: ficam visíveis apenas para quem os ativou. Cada jogador precisa ativá-los no próprio Owlbear.</div>
+  </section>
+
+  <footer class="footer">Versão 1.0.0 · Efeitos GPU locais · Teste primeiro numa cena duplicada.</footer>
+
+<script type="module">
+import OBR, { buildEffect, buildLight } from "https://esm.sh/@owlbear-rodeo/sdk@3";
+
+const PREFIX = "Owlbear Cinematic FX";
+const MASTER_NAME = `${PREFIX} · Shader principal`;
+const PREFIX_LIGHT = `${PREFIX} · Lanterna`;
+const statusEl = document.getElementById("status");
+const toneKeys = new Set(["cold", "warm", "red", "mono"]);
+const uniformForKey = {
+  vignette: "vignetteOn",
+  grain: "grainOn",
+  cold: "toneCold",
+  warm: "toneWarm",
+  red: "toneRed",
+  mono: "toneMono",
+  fog: "fogOn",
+  rain: "rainOn",
+  dust: "dustOn",
+  rays: "raysOn"
+};
+const DEFAULT_STATE = {
+  vignette: 0, grain: 0, cold: 0, warm: 0, red: 0, mono: 0,
+  fog: 0, rain: 0, dust: 0, rays: 0, flashOn: 0, flashStart: 0
+};
+let state = { ...DEFAULT_STATE };
+let ready = false;
+
+// A single post-process shader combines the enabled effects so they don't overwrite each other.
+const FX_SHADER = `
+  uniform shader scene;
+  uniform mat3 view;
+  uniform vec2 size;
+  uniform float time;
+  uniform float vignetteOn;
+  uniform float grainOn;
+  uniform float toneCold;
+  uniform float toneWarm;
+  uniform float toneRed;
+  uniform float toneMono;
+  uniform float fogOn;
+  uniform float rainOn;
+  uniform float dustOn;
+  uniform float raysOn;
+  uniform float flashOn;
+  uniform float flashStart;
+
+  half4 main(float2 coord) {
+    vec2 sceneCoord = (vec3(coord, 1.0) * view).xy;
+    half4 base = scene.eval(sceneCoord);
+    vec3 rgb = base.rgb;
+    vec2 uv = coord / size;
+
+    // Color grading: one preset at a time, blended with the original image.
+    vec3 cool = rgb * vec3(0.84, 0.94, 1.10);
+    float coolLum = dot(cool, vec3(0.299, 0.587, 0.114));
+    cool = mix(vec3(coolLum), cool, 1.08);
+    rgb = mix(rgb, cool, toneCold * 0.72);
+
+    vec3 warm = rgb * vec3(1.10, 1.02, 0.86) + vec3(0.025, 0.008, 0.0);
+    rgb = mix(rgb, warm, toneWarm * 0.62);
+
+    vec3 horror = rgb * vec3(1.10, 0.72, 0.78);
+    horror = mix(horror, vec3(0.28, 0.025, 0.045), 0.10);
+    rgb = mix(rgb, horror, toneRed * 0.72);
+
+    float monoLum = dot(rgb, vec3(0.299, 0.587, 0.114));
+    vec3 monoColor = (mix(rgb, vec3(monoLum), 0.96) - vec3(0.5)) * 1.08 + vec3(0.5);
+    rgb = mix(rgb, monoColor, toneMono);
+
+    // 2D atmospheric fog. This is a stylized overlay, not volumetric lighting.
+    float waveA = sin(uv.y * 9.0 + time * 0.11 + sin(uv.x * 8.0 + time * 0.055)) * 0.5 + 0.5;
+    float waveB = sin(uv.x * 5.0 - time * 0.07 + uv.y * 4.0) * 0.5 + 0.5;
+    float fogMask = smoothstep(0.32, 0.86, waveA * 0.62 + waveB * 0.38) * smoothstep(-0.05, 0.60, uv.y);
+    rgb = mix(rgb, vec3(0.70, 0.76, 0.82), fogMask * fogOn * 0.19);
+
+    // Rain streaks, drifting in screen space.
+    float lineX = abs(fract((uv.x + uv.y * 0.22) * 100.0) - 0.5);
+    float streak = 1.0 - smoothstep(0.02, 0.075, lineX);
+    float travel = fract(uv.y * 2.4 + time * 0.70 + sin(uv.x * 34.0) * 0.08);
+    float rainFade = smoothstep(0.08, 0.24, travel) * (1.0 - smoothstep(0.72, 0.95, travel));
+    float rainAmount = streak * rainFade * rainOn * 0.25;
+    rgb = mix(rgb, vec3(0.70, 0.82, 0.94), rainAmount);
+
+    // Procedural motes/dust. Particles are screen-space and deliberately subtle.
+    vec2 field = vec2(uv.x * 30.0, uv.y * 19.0 + time * 0.10);
+    vec2 cell = floor(field);
+    vec2 local = fract(field);
+    float hx = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
+    float hy = fract(sin(dot(cell, vec2(269.5, 183.3))) * 24634.6345);
+    float hv = fract(sin(dot(cell, vec2(78.233, 12.9898))) * 56445.2341);
+    float distanceToMote = length((local - vec2(hx, hy)) * vec2(1.0, 1.2));
+    float mote = (1.0 - smoothstep(0.025, 0.085, distanceToMote)) * step(0.80, hv);
+    rgb = mix(rgb, vec3(1.0, 0.87, 0.62), mote * dustOn * 0.58);
+
+    // Simulated light shafts, stylized in 2D and independent of scene geometry.
+    float rayPattern = pow(max(0.0, cos((uv.x - uv.y * 0.48) * 10.5 + time * 0.035)), 24.0);
+    float rayFade = 1.0 - smoothstep(0.10, 1.15, uv.y);
+    rgb = mix(rgb, vec3(1.0, 0.91, 0.72), rayPattern * rayFade * raysOn * 0.12);
+
+    // Film grain added last to sit above the atmosphere and color grade.
+    float seed = floor(time * 24.0);
+    float noiseValue = fract(sin(dot(coord + vec2(seed, seed * 0.73), vec2(12.9898, 78.233))) * 43758.5453);
+    rgb += vec3((noiseValue - 0.5) * 0.10 * grainOn);
+
+    // Vignette darkens the edges of the viewport.
+    float radius = length(uv * 2.0 - 1.0);
+    float edge = smoothstep(0.30, 1.12, radius);
+    rgb *= 1.0 - edge * vignetteOn * 0.58;
+
+    // Brief red flash. It fades automatically even if the popover closes.
+    float elapsed = max(0.0, time - flashStart);
+    float pulse = max(0.0, 1.0 - elapsed * 2.8) * flashOn;
+    float band = step(0.90, fract((coord.y + floor(time * 17.0)) * 0.018));
+    rgb = mix(rgb, vec3(0.55, 0.012, 0.04), pulse * 0.72);
+    rgb = mix(rgb, vec3(0.80, 0.06, 0.10), band * pulse * 0.20);
+
+    return half4(clamp(rgb, vec3(0.0), vec3(1.0)), base.a);
+  }
+`;
+
+function uniformNumber(uniforms, name, fallback = 0) {
+  const uniform = (uniforms || []).find((entry) => entry.name === name);
+  return typeof uniform?.value === "number" ? uniform.value : fallback;
+}
+
+function stateFromMaster(item) {
+  const uniforms = item?.uniforms || [];
+  const next = { ...DEFAULT_STATE };
+  for (const [key, uniformName] of Object.entries(uniformForKey)) {
+    next[key] = uniformNumber(uniforms, uniformName, 0) > 0.5 ? 1 : 0;
+  }
+  next.flashOn = uniformNumber(uniforms, "flashOn", 0);
+  next.flashStart = uniformNumber(uniforms, "flashStart", 0);
+  return next;
+}
+
+function buildUniforms(source) {
+  return [
+    { name: "vignetteOn", value: source.vignette },
+    { name: "grainOn", value: source.grain },
+    { name: "toneCold", value: source.cold },
+    { name: "toneWarm", value: source.warm },
+    { name: "toneRed", value: source.red },
+    { name: "toneMono", value: source.mono },
+    { name: "fogOn", value: source.fog },
+    { name: "rainOn", value: source.rain },
+    { name: "dustOn", value: source.dust },
+    { name: "raysOn", value: source.rays },
+    { name: "flashOn", value: source.flashOn },
+    { name: "flashStart", value: source.flashStart }
+  ];
+}
+
+async function getOwnedItems() {
+  return await OBR.scene.local.getItems((item) => typeof item.name === "string" && item.name.startsWith(PREFIX));
+}
+
+async function getMaster() {
+  const items = await OBR.scene.local.getItems((item) => item.name === MASTER_NAME && item.type === "EFFECT");
+  return items[0];
+}
+
+async function ensureMaster() {
+  let master = await getMaster();
+  if (master) {
+    state = stateFromMaster(master);
+    return master;
+  }
+  const item = buildEffect()
+    .name(MASTER_NAME)
+    .description("Shader combinado local do Owlbear Cinematic FX")
+    .effectType("VIEWPORT")
+    .layer("POST_PROCESS")
+    .sksl(FX_SHADER)
+    .uniforms(buildUniforms(state))
+    .locked(true)
+    .disableHit(true)
+    .build();
+  await OBR.scene.local.addItems([item]);
+  master = await getMaster();
+  if (!master) throw new Error("O Owlbear não retornou o shader principal depois de criá-lo.");
+  return master;
+}
+
+function setStatus(message, kind = "") {
+  statusEl.textContent = message;
+  statusEl.className = `status ${kind}`.trim();
+}
+
+async function refreshButtons() {
+  if (!ready) {
+    state = { ...DEFAULT_STATE };
+    for (const button of document.querySelectorAll("button[data-key]")) button.classList.remove("active");
+    setStatus("Abra uma cena do Owlbear para usar os efeitos.", "warn");
+    return;
+  }
+  const master = await getMaster();
+  state = master ? stateFromMaster(master) : { ...DEFAULT_STATE };
+  for (const button of document.querySelectorAll("button[data-key]")) {
+    const key = button.dataset.key;
+    button.classList.toggle("active", state[key] > 0.5);
+  }
+  const activeCount = Object.entries(state).filter(([key, value]) => !["flashOn", "flashStart"].includes(key) && value > 0.5).length;
+  setStatus(activeCount ? `${activeCount} efeito(s) ativo(s) nesta tela.` : "Pronto para criar atmosfera.", "good");
+}
+
+async function saveState(next) {
+  const anyToggleOn = Object.keys(uniformForKey).some((key) => next[key] > 0.5);
+  const flashOn = next.flashOn > 0.5;
+  if (!anyToggleOn && !flashOn) {
+    const existing = await getMaster();
+    if (existing) await OBR.scene.local.deleteItems([existing.id]);
+    state = { ...DEFAULT_STATE };
+    await refreshButtons();
+    return;
+  }
+  const master = await ensureMaster();
+  await OBR.scene.local.updateItems([master.id], (items) => {
+    for (const item of items) item.uniforms = buildUniforms(next);
+  });
+  state = { ...next };
+  await refreshButtons();
+}
+
+async function toggleEffect(key) {
+  if (!ready) throw new Error("Abra uma cena do Owlbear Rodeo primeiro.");
+  const currentMaster = await getMaster();
+  state = currentMaster ? stateFromMaster(currentMaster) : { ...DEFAULT_STATE };
+  const next = { ...state };
+  if (toneKeys.has(key)) {
+    const turningOff = next[key] > 0.5;
+    for (const tone of toneKeys) next[tone] = 0;
+    next[key] = turningOff ? 0 : 1;
+  } else {
+    next[key] = next[key] > 0.5 ? 0 : 1;
+  }
+  await saveState(next);
+}
+
+async function clearEffects() {
+  if (!ready) throw new Error("Abra uma cena do Owlbear Rodeo primeiro.");
+  const master = await getMaster();
+  if (!master) {
+    state = { ...DEFAULT_STATE };
+    await refreshButtons();
+    return;
+  }
+  await saveState({ ...DEFAULT_STATE });
+  setStatus("Filtros e atmosferas desligados.", "good");
+}
+
+async function triggerFlash() {
+  if (!ready) throw new Error("Abra uma cena do Owlbear Rodeo primeiro.");
+  const master = await getMaster();
+  state = master ? stateFromMaster(master) : { ...DEFAULT_STATE };
+  const next = { ...state, flashOn: 1, flashStart: Date.now() / 1000 };
+  await saveState(next);
+  setStatus("Surto paranormal ativado.", "warn");
+  // The shader itself fades to zero after ~0.36 seconds.
+  window.setTimeout(async () => {
+    try {
+      const latest = await getMaster();
+      if (!latest) return;
+      const latestState = stateFromMaster(latest);
+      latestState.flashOn = 0;
+      await saveState(latestState);
+    } catch { /* The scene may have changed or the popover may be closing. */ }
+  }, 1200);
+}
+
+async function addLantern() {
+  if (!ready) throw new Error("Abra uma cena do Owlbear Rodeo primeiro.");
+  const selection = await OBR.player.getSelection();
+  if (!selection || selection.length === 0) {
+    setStatus("Selecione um token na mesa e tente novamente.", "warn");
+    return;
+  }
+  const selectedItems = await OBR.scene.items.getItems(selection);
+  const target = selectedItems.find((item) => item.layer === "CHARACTER") || selectedItems.find((item) => item.layer === "MOUNT");
+  if (!target) {
+    setStatus("Não encontrei um token na camada Personagem/Montagem. Selecione o token, não um desenho.", "warn");
+    return;
+  }
+  const name = `${PREFIX_LIGHT} · ${target.id}`;
+  await removeNamed(name);
+  let dpi = 100;
+  try { dpi = await OBR.scene.grid.getDpi(); } catch { /* use safe fallback */ }
+  const radius = Math.max(250, dpi * 8);
+  const light = buildLight()
+    .name(name)
+    .description("Lanterna em cone local criada pelo Owlbear Cinematic FX")
+    .position(target.position)
+    .rotation(target.rotation || 0)
+    .attachedTo(target.id)
+    .attenuationRadius(radius)
+    .sourceRadius(Math.max(0, dpi * 0.45))
+    .falloff(0.72)
+    .innerAngle(24)
+    .outerAngle(52)
+    .build();
+  await OBR.scene.local.addItems([light]);
+  setStatus(`Lanterna em cone adicionada a ${target.name || "token"}. Confira o Dynamic Fog da cena.`, "good");
+}
+
+async function removeNamed(name) {
+  const items = await OBR.scene.local.getItems((item) => item.name === name);
+  if (items.length) await OBR.scene.local.deleteItems(items.map((item) => item.id));
+}
+
+async function clearLights() {
+  if (!ready) throw new Error("Abra uma cena do Owlbear Rodeo primeiro.");
+  const items = await getOwnedItems();
+  const lights = items.filter((item) => item.type === "LIGHT");
+  if (lights.length) await OBR.scene.local.deleteItems(lights.map((item) => item.id));
+  setStatus(lights.length ? "Lanternas desta extensão removidas." : "Não havia lanternas desta extensão.", "good");
+}
+
+function reportError(error) {
+  console.error("Owlbear Cinematic FX:", error);
+  setStatus(`Não foi possível aplicar o efeito: ${error?.message || "erro desconhecido"}`, "warn");
+}
+
+document.querySelectorAll("button[data-key]").forEach((button) => {
+  button.addEventListener("click", () => toggleEffect(button.dataset.key).catch(reportError));
+});
+document.getElementById("clearFx").addEventListener("click", () => clearEffects().catch(reportError));
+document.getElementById("flash").addEventListener("click", () => triggerFlash().catch(reportError));
+document.getElementById("lantern").addEventListener("click", () => addLantern().catch(reportError));
+document.getElementById("clearLights").addEventListener("click", () => clearLights().catch(reportError));
+
+OBR.onReady(async () => {
+  try {
+    ready = await OBR.scene.isReady();
+    await refreshButtons();
+    OBR.scene.onReadyChange(async (sceneReady) => {
+      ready = sceneReady;
+      if (ready) await refreshButtons();
+      else setStatus("Abra uma cena do Owlbear para usar os efeitos.", "warn");
+    });
+  } catch (error) {
+    reportError(error);
+  }
+});
+</script>
+</body>
+</html>

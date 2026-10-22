@@ -1,0 +1,15 @@
+{
+  "name": "Owlbear Cinematic FX",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "description": "Filtros cinematográficos, atmosferas animadas e lanterna local para Owlbear Rodeo.",
+  "author": "MX",
+  "icon": "https://emixiszao.github.io/cris-owlbear/owlbear-cinematic-fx/icon.svg",
+  "action": {
+    "title": "Cinematic FX",
+    "icon": "https://emixiszao.github.io/cris-owlbear/owlbear-cinematic-fx/icon.svg",
+    "popover": "https://emixiszao.github.io/cris-owlbear/owlbear-cinematic-fx/index.html",
+    "width": 370,
+    "height": 760
+  }
+}
